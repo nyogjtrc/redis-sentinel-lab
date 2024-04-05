@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  redis-master:
+    image: redis:7.0.15
+
+  redis-slave1:
+    image: redis:7.0.15
+    command: redis-server --slaveof redis-master 6379
+    depends_on:
+      - redis-master
+
+  redis-slave2:
+    image: redis:7.0.15
+    command: redis-server --slaveof redis-master 6379
+    depends_on:
+      - redis-master
+      - redis-slave1
+
+  sentinel-1:
+    image: redis:7.0.15
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    depends_on:
+      - redis-master
+
+  sentinel-2:
+    image: redis:7.0.15
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    depends_on:
+      - redis-master
+
+  sentinel-3:
+    image: redis:7.0.15
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    depends_on:
+      - redis-master
+
+  app:
+    image: golang:1.21.3
+    working_dir: /app
+    command: go run main.go
+    volumes:
+      - ./:/app
+    depends_on:
+      - redis-master
