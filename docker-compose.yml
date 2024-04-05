@@ -49,3 +49,4 @@ services:
       - ./:/app
     depends_on:
       - redis-master
+      - sentinel-1
